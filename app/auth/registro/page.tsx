@@ -50,7 +50,7 @@ export default function RegistroPage() {
     try {
       const supabase = createClient()
 
-      // Crear usuario
+      // Crear usuario (el trigger creará el perfil automáticamente)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -64,19 +64,6 @@ export default function RegistroPage() {
       if (authError) throw authError
 
       if (authData.user) {
-        // Crear perfil en la tabla perfiles
-        const { error: profileError } = await supabase
-          .from('perfiles')
-          .insert({
-            id: authData.user.id,
-            correo: formData.email,
-            nombre_completo: formData.nombreCompleto,
-            rol: 'usuario',
-            activo: true,
-          })
-
-        if (profileError) throw profileError
-
         setSuccess(true)
         setTimeout(() => {
           router.push('/auth/login')
