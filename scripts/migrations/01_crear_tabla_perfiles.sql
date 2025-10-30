@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS public.perfiles (
   -- Información personal
   nombre_completo TEXT NOT NULL,
   telefono TEXT,
-  cargo TEXT,
 
   -- Configuración de cuenta
   rol TEXT NOT NULL DEFAULT 'usuario'

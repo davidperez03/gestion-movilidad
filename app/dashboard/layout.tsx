@@ -18,6 +18,11 @@ const menuItems = [
     icon: LayoutDashboard,
   },
   {
+    title: 'Usuarios',
+    href: '/dashboard/usuarios',
+    icon: Users,
+  },
+  {
     title: 'Vehículos',
     href: '/dashboard/vehiculos',
     icon: Car,
