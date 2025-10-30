@@ -6,9 +6,10 @@ import {
   ClipboardCheck,
   BookOpen,
   Settings,
-  LogOut
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { LogoutButton } from '@/components/logout-button'
+import { getUserProfile } from '@/lib/auth/actions'
 
 const menuItems = [
   {
@@ -38,11 +39,13 @@ const menuItems = [
   },
 ]
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const profile = await getUserProfile()
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -72,17 +75,29 @@ export default function DashboardLayout({
         </nav>
 
         {/* Footer del sidebar */}
-        <div className="p-4 border-t border-gray-200 space-y-2">
-          <Button variant="ghost" className="w-full justify-start" asChild>
-            <Link href="/dashboard/configuracion">
-              <Settings className="h-5 w-5 mr-3" />
-              Configuración
-            </Link>
-          </Button>
-          <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
-            <LogOut className="h-5 w-5 mr-3" />
-            Cerrar Sesión
-          </Button>
+        <div className="p-4 border-t border-gray-200">
+          {/* Información del usuario */}
+          {profile && (
+            <div className="mb-4 px-2">
+              <p className="text-sm font-medium text-gray-900">
+                {profile.nombre_completo || 'Usuario'}
+              </p>
+              <p className="text-xs text-gray-500">{profile.correo}</p>
+              <span className="inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
+                {profile.rol}
+              </span>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Button variant="ghost" className="w-full justify-start" asChild>
+              <Link href="/dashboard/configuracion">
+                <Settings className="h-5 w-5 mr-3" />
+                Configuración
+              </Link>
+            </Button>
+            <LogoutButton />
+          </div>
         </div>
       </aside>
 
