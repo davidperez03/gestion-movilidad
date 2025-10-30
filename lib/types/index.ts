@@ -5,9 +5,7 @@ import type { Database } from './database.types'
 // Tipos de tablas
 export type Perfil = Database['public']['Tables']['perfiles']['Row']
 export type Vehiculo = Database['public']['Tables']['vehiculos']['Row']
-export type Operario = Database['public']['Tables']['operarios']['Row']
-export type Auxiliar = Database['public']['Tables']['auxiliares']['Row']
-export type Inspector = Database['public']['Tables']['inspectores']['Row']
+export type RolOperativo = Database['public']['Tables']['roles_operativos']['Row']
 export type Inspeccion = Database['public']['Tables']['inspecciones']['Row']
 export type ItemInspeccion = Database['public']['Tables']['items_inspeccion']['Row']
 export type FotoInspeccion = Database['public']['Tables']['fotos_inspeccion']['Row']
@@ -15,17 +13,16 @@ export type BitacoraEvento = Database['public']['Tables']['bitacora_eventos']['R
 
 // Tipos para insertar
 export type NuevoVehiculo = Database['public']['Tables']['vehiculos']['Insert']
-export type NuevoOperario = Database['public']['Tables']['operarios']['Insert']
-export type NuevoAuxiliar = Database['public']['Tables']['auxiliares']['Insert']
+export type NuevoRolOperativo = Database['public']['Tables']['roles_operativos']['Insert']
 export type NuevaInspeccion = Database['public']['Tables']['inspecciones']['Insert']
 export type NuevoEvento = Database['public']['Tables']['bitacora_eventos']['Insert']
 
 // Tipos con relaciones
 export type InspeccionCompleta = Inspeccion & {
   vehiculos?: Vehiculo
-  operarios?: Operario
-  auxiliares?: Auxiliar | null
-  inspectores?: Inspector | null
+  operario_perfil?: Perfil
+  auxiliar_perfil?: Perfil | null
+  inspector_perfil?: Perfil | null
   items_inspeccion?: ItemInspeccion[]
   fotos_inspeccion?: FotoInspeccion[]
 }
@@ -33,8 +30,13 @@ export type InspeccionCompleta = Inspeccion & {
 // Tipo con relaciones para Bitácora
 export type BitacoraEventoCompleta = BitacoraEvento & {
   vehiculos?: Vehiculo
-  operarios?: Operario | null
-  auxiliares?: Auxiliar | null
+  operario_perfil?: Perfil | null
+  auxiliar_perfil?: Perfil | null
+}
+
+// Tipo extendido para Rol Operativo con datos del perfil
+export type RolOperativoConPerfil = RolOperativo & {
+  perfiles?: Perfil
 }
 
 // Enums y tipos de estado

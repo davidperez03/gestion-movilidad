@@ -7,6 +7,7 @@ import { UsuarioActions } from '@/components/usuarios/usuario-actions'
 import { CrearUsuarioDialog } from '@/components/usuarios/crear-usuario-dialog'
 import { FechaColombia } from '@/components/ui/fecha-colombia'
 import { Users } from 'lucide-react'
+import Link from 'next/link'
 
 export default async function UsuariosPage() {
   const usuarios = await obtenerTodosLosUsuarios()
@@ -78,9 +79,9 @@ export default async function UsuariosPage() {
                   </TableRow>
                 ) : (
                   usuarios.map((usuario) => (
-                    <TableRow key={usuario.id}>
+                    <TableRow key={usuario.id} className="cursor-pointer hover:bg-muted/50">
                       <TableCell className="font-medium">
-                        <div className="flex items-center gap-3">
+                        <Link href={`/dashboard/usuarios/${usuario.id}`} className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={usuario.url_avatar || undefined} alt={usuario.nombre_completo || ''} />
                             <AvatarFallback>
@@ -88,35 +89,47 @@ export default async function UsuariosPage() {
                             </AvatarFallback>
                           </Avatar>
                           <span>{usuario.nombre_completo}</span>
-                        </div>
+                        </Link>
                       </TableCell>
-                      <TableCell>{usuario.correo}</TableCell>
+                      <TableCell>
+                        <Link href={`/dashboard/usuarios/${usuario.id}`}>
+                          {usuario.correo}
+                        </Link>
+                      </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {usuario.telefono || '-'}
+                        <Link href={`/dashboard/usuarios/${usuario.id}`}>
+                          {usuario.telefono || '-'}
+                        </Link>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getRolVariant(usuario.rol)}>
-                          {getRolLabel(usuario.rol)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <Badge variant={usuario.activo ? 'default' : 'outline'}>
-                            {usuario.activo ? 'Activo' : 'Inactivo'}
+                        <Link href={`/dashboard/usuarios/${usuario.id}`}>
+                          <Badge variant={getRolVariant(usuario.rol)}>
+                            {getRolLabel(usuario.rol)}
                           </Badge>
-                          {usuario.bloqueado_hasta && new Date(usuario.bloqueado_hasta).getTime() > Date.now() && (
-                            <Badge variant="destructive" className="text-xs">
-                              Bloqueado
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Link href={`/dashboard/usuarios/${usuario.id}`}>
+                          <div className="flex flex-col gap-1">
+                            <Badge variant={usuario.activo ? 'default' : 'outline'}>
+                              {usuario.activo ? 'Activo' : 'Inactivo'}
                             </Badge>
-                          )}
-                        </div>
+                            {usuario.bloqueado_hasta && new Date(usuario.bloqueado_hasta).getTime() > Date.now() && (
+                              <Badge variant="destructive" className="text-xs">
+                                Bloqueado
+                              </Badge>
+                            )}
+                          </div>
+                        </Link>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        <FechaColombia
-                          fecha={usuario.ultimo_acceso}
-                          formato="relativo"
-                          placeholder="Nunca"
-                        />
+                        <Link href={`/dashboard/usuarios/${usuario.id}`}>
+                          <FechaColombia
+                            fecha={usuario.ultimo_acceso}
+                            formato="relativo"
+                            placeholder="Nunca"
+                          />
+                        </Link>
                       </TableCell>
                       <TableCell className="text-right">
                         <UsuarioActions usuario={usuario} />

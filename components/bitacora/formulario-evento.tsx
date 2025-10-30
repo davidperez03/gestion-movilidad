@@ -14,13 +14,19 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { crearEventoBitacora } from '@/lib/actions/bitacora'
-import { TIPOS_EVENTO, TURNOS, type Vehiculo, type Operario, type Auxiliar } from '@/lib/types'
+import { TIPOS_EVENTO, TURNOS, type Vehiculo } from '@/lib/types'
 import { Loader2, Save } from 'lucide-react'
+
+interface PersonaBasica {
+  id: string
+  nombre: string
+  correo?: string
+}
 
 interface FormularioEventoProps {
   vehiculos: Array<Pick<Vehiculo, 'id' | 'placa' | 'marca' | 'modelo' | 'tipo' | 'kilometraje_actual'>>
-  operarios: Array<Pick<Operario, 'id' | 'nombre' | 'cedula'>>
-  auxiliares: Array<Pick<Auxiliar, 'id' | 'nombre' | 'cedula'>>
+  operarios: PersonaBasica[]
+  auxiliares: PersonaBasica[]
 }
 
 export function FormularioEvento({
@@ -39,8 +45,8 @@ export function FormularioEvento({
 
   const [formData, setFormData] = useState({
     vehiculo_id: '',
-    operario_id: '',
-    auxiliar_id: '',
+    operario_perfil_id: '',
+    auxiliar_perfil_id: '',
     fecha: fechaHoy,
     hora_inicio: horaActual,
     tipo_evento: 'operacion' as const,
@@ -71,8 +77,8 @@ export function FormularioEvento({
 
       await crearEventoBitacora({
         vehiculo_id: formData.vehiculo_id,
-        operario_id: formData.operario_id || null,
-        auxiliar_id: formData.auxiliar_id || null,
+        operario_perfil_id: formData.operario_perfil_id || null,
+        auxiliar_perfil_id: formData.auxiliar_perfil_id || null,
         fecha: formData.fecha,
         hora_inicio: formData.hora_inicio,
         tipo_evento: formData.tipo_evento,
@@ -220,8 +226,8 @@ export function FormularioEvento({
       <div className="space-y-2">
         <Label htmlFor="operario">Operario</Label>
         <Select
-          value={formData.operario_id}
-          onValueChange={(value) => setFormData({ ...formData, operario_id: value })}
+          value={formData.operario_perfil_id}
+          onValueChange={(value) => setFormData({ ...formData, operario_perfil_id: value })}
         >
           <SelectTrigger id="operario">
             <SelectValue placeholder="Selecciona un operario (opcional)" />
@@ -230,7 +236,7 @@ export function FormularioEvento({
             <SelectItem value="">Sin operario</SelectItem>
             {operarios.map((operario) => (
               <SelectItem key={operario.id} value={operario.id}>
-                {operario.nombre} - {operario.cedula}
+                {operario.nombre}
               </SelectItem>
             ))}
           </SelectContent>
@@ -241,8 +247,8 @@ export function FormularioEvento({
       <div className="space-y-2">
         <Label htmlFor="auxiliar">Auxiliar</Label>
         <Select
-          value={formData.auxiliar_id}
-          onValueChange={(value) => setFormData({ ...formData, auxiliar_id: value })}
+          value={formData.auxiliar_perfil_id}
+          onValueChange={(value) => setFormData({ ...formData, auxiliar_perfil_id: value })}
         >
           <SelectTrigger id="auxiliar">
             <SelectValue placeholder="Selecciona un auxiliar (opcional)" />
@@ -251,7 +257,7 @@ export function FormularioEvento({
             <SelectItem value="">Sin auxiliar</SelectItem>
             {auxiliares.map((auxiliar) => (
               <SelectItem key={auxiliar.id} value={auxiliar.id}>
-                {auxiliar.nombre} - {auxiliar.cedula}
+                {auxiliar.nombre}
               </SelectItem>
             ))}
           </SelectContent>

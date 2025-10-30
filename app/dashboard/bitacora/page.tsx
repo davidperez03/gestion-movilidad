@@ -8,28 +8,29 @@ import { Plus, Calendar } from 'lucide-react'
 import Link from 'next/link'
 
 interface BitacoraPageProps {
-  searchParams: {
+  searchParams: Promise<{
     pagina?: string
     vehiculoId?: string
     estado?: string
     tipoEvento?: string
     fechaInicio?: string
     fechaFin?: string
-  }
+  }>
 }
 
 export default async function BitacoraPage({ searchParams }: BitacoraPageProps) {
-  const pagina = Number(searchParams.pagina) || 1
+  const params = await searchParams
+  const pagina = Number(params.pagina) || 1
 
   // Obtener eventos con filtros
   const { eventos, total, totalPaginas } = await obtenerEventosBitacora({
     pagina,
     limite: 20,
-    vehiculoId: searchParams.vehiculoId,
-    estado: searchParams.estado,
-    tipoEvento: searchParams.tipoEvento,
-    fechaInicio: searchParams.fechaInicio,
-    fechaFin: searchParams.fechaFin,
+    vehiculoId: params.vehiculoId,
+    estado: params.estado,
+    tipoEvento: params.tipoEvento,
+    fechaInicio: params.fechaInicio,
+    fechaFin: params.fechaFin,
   })
 
   // Obtener vehículos para el filtro
@@ -69,11 +70,11 @@ export default async function BitacoraPage({ searchParams }: BitacoraPageProps) 
           <FiltrosBitacoraClient
             vehiculos={vehiculos || []}
             filtrosIniciales={{
-              vehiculoId: searchParams.vehiculoId,
-              estado: searchParams.estado,
-              tipoEvento: searchParams.tipoEvento,
-              fechaInicio: searchParams.fechaInicio,
-              fechaFin: searchParams.fechaFin,
+              vehiculoId: params.vehiculoId,
+              estado: params.estado,
+              tipoEvento: params.tipoEvento,
+              fechaInicio: params.fechaInicio,
+              fechaFin: params.fechaFin,
             }}
           />
 
@@ -93,7 +94,7 @@ export default async function BitacoraPage({ searchParams }: BitacoraPageProps) 
               </div>
               <CardTitle>No hay eventos registrados</CardTitle>
               <CardDescription>
-                {Object.values(searchParams).some(Boolean)
+                {Object.values(params).some(Boolean)
                   ? 'No se encontraron eventos con los filtros aplicados'
                   : 'Comienza registrando tu primer evento en la bitácora'}
               </CardDescription>
@@ -120,11 +121,11 @@ export default async function BitacoraPage({ searchParams }: BitacoraPageProps) 
           <div className="flex items-center justify-center gap-2 mt-6">
             <Link
               href={`/dashboard/bitacora?pagina=${pagina - 1}${
-                searchParams.vehiculoId ? `&vehiculoId=${searchParams.vehiculoId}` : ''
-              }${searchParams.estado ? `&estado=${searchParams.estado}` : ''}${
-                searchParams.tipoEvento ? `&tipoEvento=${searchParams.tipoEvento}` : ''
-              }${searchParams.fechaInicio ? `&fechaInicio=${searchParams.fechaInicio}` : ''}${
-                searchParams.fechaFin ? `&fechaFin=${searchParams.fechaFin}` : ''
+                params.vehiculoId ? `&vehiculoId=${params.vehiculoId}` : ''
+              }${params.estado ? `&estado=${params.estado}` : ''}${
+                params.tipoEvento ? `&tipoEvento=${params.tipoEvento}` : ''
+              }${params.fechaInicio ? `&fechaInicio=${params.fechaInicio}` : ''}${
+                params.fechaFin ? `&fechaFin=${params.fechaFin}` : ''
               }`}
             >
               <Button
@@ -142,11 +143,11 @@ export default async function BitacoraPage({ searchParams }: BitacoraPageProps) 
 
             <Link
               href={`/dashboard/bitacora?pagina=${pagina + 1}${
-                searchParams.vehiculoId ? `&vehiculoId=${searchParams.vehiculoId}` : ''
-              }${searchParams.estado ? `&estado=${searchParams.estado}` : ''}${
-                searchParams.tipoEvento ? `&tipoEvento=${searchParams.tipoEvento}` : ''
-              }${searchParams.fechaInicio ? `&fechaInicio=${searchParams.fechaInicio}` : ''}${
-                searchParams.fechaFin ? `&fechaFin=${searchParams.fechaFin}` : ''
+                params.vehiculoId ? `&vehiculoId=${params.vehiculoId}` : ''
+              }${params.estado ? `&estado=${params.estado}` : ''}${
+                params.tipoEvento ? `&tipoEvento=${params.tipoEvento}` : ''
+              }${params.fechaInicio ? `&fechaInicio=${params.fechaInicio}` : ''}${
+                params.fechaFin ? `&fechaFin=${params.fechaFin}` : ''
               }`}
             >
               <Button

@@ -39,15 +39,15 @@ export async function obtenerEventosBitacora(params?: {
         modelo,
         tipo
       ),
-      operarios (
+      operario_perfil:perfiles!bitacora_eventos_operario_perfil_id_fkey (
         id,
-        nombre,
-        cedula
+        nombre_completo,
+        correo
       ),
-      auxiliares (
+      auxiliar_perfil:perfiles!bitacora_eventos_auxiliar_perfil_id_fkey (
         id,
-        nombre,
-        cedula
+        nombre_completo,
+        correo
       )
     `, { count: 'exact' })
     .order('fecha', { ascending: false })
@@ -89,8 +89,8 @@ export async function obtenerEventoPorId(id: string) {
     .select(`
       *,
       vehiculos (*),
-      operarios (*),
-      auxiliares (*)
+      operario_perfil:perfiles!bitacora_eventos_operario_perfil_id_fkey (*),
+      auxiliar_perfil:perfiles!bitacora_eventos_auxiliar_perfil_id_fkey (*)
     `)
     .eq('id', id)
     .single()

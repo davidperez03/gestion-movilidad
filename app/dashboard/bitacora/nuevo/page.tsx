@@ -17,15 +17,29 @@ export default async function NuevoEventoPage() {
       .eq('estado_operativo', 'operativo')
       .order('placa'),
     supabase
-      .from('operarios')
-      .select('id, nombre, cedula')
-      .eq('activo', true)
-      .order('nombre'),
+      .from('roles_operativos')
+      .select(`
+        perfil_id,
+        perfiles (
+          id,
+          nombre_completo,
+          correo
+        )
+      `)
+      .eq('rol', 'operario')
+      .eq('activo', true),
     supabase
-      .from('auxiliares')
-      .select('id, nombre, cedula')
-      .eq('activo', true)
-      .order('nombre'),
+      .from('roles_operativos')
+      .select(`
+        perfil_id,
+        perfiles (
+          id,
+          nombre_completo,
+          correo
+        )
+      `)
+      .eq('rol', 'auxiliar')
+      .eq('activo', true),
   ])
 
   return (
@@ -56,8 +70,16 @@ export default async function NuevoEventoPage() {
         <CardContent>
           <FormularioEvento
             vehiculos={vehiculosRes.data || []}
-            operarios={operariosRes.data || []}
-            auxiliares={auxiliaresRes.data || []}
+            operarios={(operariosRes.data || []).map((r: any) => ({
+              id: r.perfiles?.id || r.perfil_id,
+              nombre: r.perfiles?.nombre_completo || '',
+              correo: r.perfiles?.correo || '',
+            }))}
+            auxiliares={(auxiliaresRes.data || []).map((r: any) => ({
+              id: r.perfiles?.id || r.perfil_id,
+              nombre: r.perfiles?.nombre_completo || '',
+              correo: r.perfiles?.correo || '',
+            }))}
           />
         </CardContent>
       </Card>

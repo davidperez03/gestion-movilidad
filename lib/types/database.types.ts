@@ -60,89 +60,33 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['vehiculos']['Row'], 'id' | 'creado_en' | 'actualizado_en'>
         Update: Partial<Database['public']['Tables']['vehiculos']['Insert']>
       }
-      operarios: {
+      roles_operativos: {
         Row: {
           id: string
-          nombre: string
-          cedula: string
-          telefono: string | null
-          direccion: string | null
-          correo_electronico: string | null
-          contacto_emergencia: string | null
-          telefono_emergencia: string | null
-          activo: boolean
-          fecha_ingreso: string | null
-          fecha_retiro: string | null
-          motivo_retiro: string | null
-          es_conductor: boolean
+          perfil_id: string
+          rol: 'operario' | 'auxiliar' | 'inspector'
           licencia_conduccion: string | null
-          categoria_licencia: string | null
+          categoria_licencia: 'A1' | 'A2' | 'B1' | 'B2' | 'B3' | 'C1' | 'C2' | 'C3' | null
           licencia_vencimiento: string | null
-          eps: string | null
-          arl: string | null
-          tipo_sangre: string | null
-          observaciones: string | null
-          creado_en: string
-          actualizado_en: string
-          creado_por: string | null
-          actualizado_por: string | null
-        }
-        Insert: Omit<Database['public']['Tables']['operarios']['Row'], 'id' | 'creado_en' | 'actualizado_en'>
-        Update: Partial<Database['public']['Tables']['operarios']['Insert']>
-      }
-      auxiliares: {
-        Row: {
-          id: string
-          nombre: string
-          cedula: string
-          telefono: string | null
-          direccion: string | null
-          correo_electronico: string | null
-          contacto_emergencia: string | null
-          telefono_emergencia: string | null
           activo: boolean
-          fecha_ingreso: string | null
-          fecha_retiro: string | null
-          motivo_retiro: string | null
-          eps: string | null
-          arl: string | null
-          tipo_sangre: string | null
-          observaciones: string | null
+          fecha_inicio: string
+          fecha_fin: string | null
+          motivo_inactivacion: string | null
           creado_en: string
           actualizado_en: string
           creado_por: string | null
           actualizado_por: string | null
         }
-        Insert: Omit<Database['public']['Tables']['auxiliares']['Row'], 'id' | 'creado_en' | 'actualizado_en'>
-        Update: Partial<Database['public']['Tables']['auxiliares']['Insert']>
-      }
-      inspectores: {
-        Row: {
-          id: string
-          nombre: string
-          documento: string
-          cargo: string
-          certificaciones: string[] | null
-          especialidades: string[] | null
-          telefono: string | null
-          correo_electronico: string | null
-          activo: boolean
-          observaciones: string | null
-          creado_en: string
-          actualizado_en: string
-          creado_por: string | null
-          actualizado_por: string | null
-        }
-        Insert: Omit<Database['public']['Tables']['inspectores']['Row'], 'id' | 'creado_en' | 'actualizado_en'>
-        Update: Partial<Database['public']['Tables']['inspectores']['Insert']>
+        Insert: Omit<Database['public']['Tables']['roles_operativos']['Row'], 'id' | 'creado_en' | 'actualizado_en'>
+        Update: Partial<Database['public']['Tables']['roles_operativos']['Insert']>
       }
       inspecciones: {
         Row: {
           id: string
           vehiculo_id: string
-          operario_id: string
-          auxiliar_id: string | null
-          inspector_id: string | null
+          operario_perfil_id: string
+          auxiliar_perfil_id: string | null
+          inspector_perfil_id: string | null
           fecha: string
           hora: string
           nombre_operario: string
@@ -220,8 +164,8 @@ export interface Database {
         Row: {
           id: string
           vehiculo_id: string
-          operario_id: string | null
-          auxiliar_id: string | null
+          operario_perfil_id: string | null
+          auxiliar_perfil_id: string | null
           fecha: string
           hora_inicio: string
           hora_fin: string | null

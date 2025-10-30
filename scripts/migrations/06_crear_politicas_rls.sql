@@ -11,16 +11,11 @@
 
 ALTER TABLE public.perfiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.vehiculos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.operarios ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.auxiliares ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.inspectores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.roles_operativos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bitacora_eventos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.bitacora_cierres ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.inspecciones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.items_inspeccion ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.fotos_inspeccion ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.historial_personal ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.historial_acciones ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
 -- FUNCIONES AUXILIARES
@@ -95,45 +90,32 @@ CREATE POLICY "Solo administradores pueden gestionar vehículos"
   USING (public.es_administrador());
 
 -- ============================================
--- POLÍTICAS: operarios
+-- POLÍTICAS: roles_operativos
 -- ============================================
 
--- Todos pueden ver operarios activos
-CREATE POLICY "Todos pueden ver operarios activos"
-  ON public.operarios FOR SELECT
+-- Todos pueden ver roles operativos activos
+CREATE POLICY "Todos pueden ver roles operativos activos"
+  ON public.roles_operativos FOR SELECT
   USING (activo = true OR public.es_administrador());
 
--- Solo administradores pueden gestionar operarios
-CREATE POLICY "Solo administradores pueden gestionar operarios"
-  ON public.operarios FOR ALL
+-- Los usuarios pueden ver sus propios roles (incluso inactivos)
+CREATE POLICY "Usuarios pueden ver sus propios roles"
+  ON public.roles_operativos FOR SELECT
+  USING (perfil_id = auth.uid());
+
+-- Solo administradores pueden crear roles operativos
+CREATE POLICY "Solo administradores pueden crear roles operativos"
+  ON public.roles_operativos FOR INSERT
+  WITH CHECK (public.es_administrador());
+
+-- Solo administradores pueden actualizar roles operativos
+CREATE POLICY "Solo administradores pueden actualizar roles operativos"
+  ON public.roles_operativos FOR UPDATE
   USING (public.es_administrador());
 
--- ============================================
--- POLÍTICAS: auxiliares
--- ============================================
-
--- Todos pueden ver auxiliares activos
-CREATE POLICY "Todos pueden ver auxiliares activos"
-  ON public.auxiliares FOR SELECT
-  USING (activo = true OR public.es_administrador());
-
--- Solo administradores pueden gestionar auxiliares
-CREATE POLICY "Solo administradores pueden gestionar auxiliares"
-  ON public.auxiliares FOR ALL
-  USING (public.es_administrador());
-
--- ============================================
--- POLÍTICAS: inspectores
--- ============================================
-
--- Todos pueden ver inspectores activos
-CREATE POLICY "Todos pueden ver inspectores activos"
-  ON public.inspectores FOR SELECT
-  USING (activo = true OR public.es_administrador());
-
--- Solo administradores pueden gestionar inspectores
-CREATE POLICY "Solo administradores pueden gestionar inspectores"
-  ON public.inspectores FOR ALL
+-- Solo administradores pueden eliminar roles operativos
+CREATE POLICY "Solo administradores pueden eliminar roles operativos"
+  ON public.roles_operativos FOR DELETE
   USING (public.es_administrador());
 
 -- ============================================
@@ -165,31 +147,6 @@ CREATE POLICY "Solo administradores pueden eliminar eventos"
   ON public.bitacora_eventos FOR DELETE
   USING (public.es_administrador());
 
--- ============================================
--- POLÍTICAS: bitacora_cierres
--- ============================================
-
--- Todos pueden ver cierres
-CREATE POLICY "Todos pueden ver cierres"
-  ON public.bitacora_cierres FOR SELECT
-  TO authenticated
-  USING (true);
-
--- Inspectores y administradores pueden crear cierres
-CREATE POLICY "Inspectores pueden crear cierres"
-  ON public.bitacora_cierres FOR INSERT
-  TO authenticated
-  WITH CHECK (public.es_inspector_o_superior());
-
--- Solo administradores pueden modificar cierres
-CREATE POLICY "Solo administradores pueden modificar cierres"
-  ON public.bitacora_cierres FOR UPDATE
-  USING (public.es_administrador());
-
--- Solo administradores pueden eliminar cierres
-CREATE POLICY "Solo administradores pueden eliminar cierres"
-  ON public.bitacora_cierres FOR DELETE
-  USING (public.es_administrador());
 
 -- ============================================
 -- POLÍTICAS: inspecciones
@@ -305,35 +262,6 @@ CREATE POLICY "Solo administradores pueden eliminar fotos"
   ON public.fotos_inspeccion FOR DELETE
   USING (public.es_administrador());
 
--- ============================================
--- POLÍTICAS: historial_personal
--- ============================================
-
--- Todos pueden ver historial de personal
-CREATE POLICY "Todos pueden ver historial de personal"
-  ON public.historial_personal FOR SELECT
-  TO authenticated
-  USING (true);
-
--- Solo el sistema puede insertar en historial (via triggers)
--- No hay políticas de INSERT/UPDATE/DELETE para usuarios
-
--- ============================================
--- POLÍTICAS: historial_acciones
--- ============================================
-
--- Solo administradores pueden ver historial de acciones
-CREATE POLICY "Solo administradores pueden ver historial"
-  ON public.historial_acciones FOR SELECT
-  USING (public.es_administrador());
-
--- Los usuarios pueden ver sus propias acciones
-CREATE POLICY "Usuarios pueden ver sus propias acciones"
-  ON public.historial_acciones FOR SELECT
-  USING (usuario_id = auth.uid());
-
--- Solo el sistema puede insertar en historial (via triggers)
--- No hay políticas de INSERT/UPDATE/DELETE para usuarios
 
 -- ============================================
 -- GRANT PERMISSIONS

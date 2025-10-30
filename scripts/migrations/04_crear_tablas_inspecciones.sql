@@ -12,11 +12,11 @@ CREATE TABLE IF NOT EXISTS public.inspecciones (
   -- Identificación
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- Referencias
+  -- Referencias (ACTUALIZADAS: ahora usan perfiles en lugar de tablas separadas)
   vehiculo_id UUID NOT NULL REFERENCES public.vehiculos(id),
-  operario_id UUID NOT NULL REFERENCES public.operarios(id),
-  auxiliar_id UUID REFERENCES public.auxiliares(id),
-  inspector_id UUID REFERENCES public.inspectores(id),
+  operario_perfil_id UUID NOT NULL REFERENCES public.perfiles(id),
+  auxiliar_perfil_id UUID REFERENCES public.perfiles(id),
+  inspector_perfil_id UUID REFERENCES public.perfiles(id),
 
   -- Fecha y hora
   fecha DATE NOT NULL,
@@ -83,8 +83,8 @@ COMMENT ON COLUMN public.inspecciones.puntaje_total IS
 -- Índices
 CREATE INDEX idx_inspecciones_vehiculo_fecha ON public.inspecciones(vehiculo_id, fecha DESC);
 CREATE INDEX idx_inspecciones_fecha ON public.inspecciones(fecha DESC);
-CREATE INDEX idx_inspecciones_operario ON public.inspecciones(operario_id);
-CREATE INDEX idx_inspecciones_inspector ON public.inspecciones(inspector_id);
+CREATE INDEX idx_inspecciones_operario ON public.inspecciones(operario_perfil_id);
+CREATE INDEX idx_inspecciones_inspector ON public.inspecciones(inspector_perfil_id);
 CREATE INDEX idx_inspecciones_es_apto ON public.inspecciones(es_apto);
 CREATE INDEX idx_inspecciones_estado ON public.inspecciones(estado);
 

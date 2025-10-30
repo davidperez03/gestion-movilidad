@@ -12,10 +12,10 @@ CREATE TABLE IF NOT EXISTS public.bitacora_eventos (
   -- Identificación
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- Referencias
+  -- Referencias (ACTUALIZADAS: ahora usan perfiles en lugar de tablas separadas)
   vehiculo_id UUID NOT NULL REFERENCES public.vehiculos(id),
-  operario_id UUID REFERENCES public.operarios(id),
-  auxiliar_id UUID REFERENCES public.auxiliares(id),
+  operario_perfil_id UUID REFERENCES public.perfiles(id),
+  auxiliar_perfil_id UUID REFERENCES public.perfiles(id),
 
   -- Fecha y hora
   fecha DATE NOT NULL,
@@ -44,8 +44,6 @@ CREATE TABLE IF NOT EXISTS public.bitacora_eventos (
   -- Ubicación
   ubicacion_inicio TEXT,
   ubicacion_fin TEXT,
-  coordenadas_inicio POINT,
-  coordenadas_fin POINT,
 
   -- Metadata
   observaciones TEXT,
@@ -66,7 +64,7 @@ COMMENT ON COLUMN public.bitacora_eventos.tipo_evento IS
 CREATE INDEX idx_eventos_vehiculo_fecha ON public.bitacora_eventos(vehiculo_id, fecha DESC);
 CREATE INDEX idx_eventos_estado ON public.bitacora_eventos(estado);
 CREATE INDEX idx_eventos_fecha ON public.bitacora_eventos(fecha DESC);
-CREATE INDEX idx_eventos_operario ON public.bitacora_eventos(operario_id);
+CREATE INDEX idx_eventos_operario ON public.bitacora_eventos(operario_perfil_id);
 CREATE INDEX idx_eventos_tipo ON public.bitacora_eventos(tipo_evento);
 
 -- ============================================
@@ -77,9 +75,9 @@ CREATE TABLE IF NOT EXISTS public.bitacora_cierres (
   -- Identificación
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- Referencias
+  -- Referencias (ACTUALIZADAS: ahora usan perfiles en lugar de tablas separadas)
   vehiculo_id UUID NOT NULL REFERENCES public.vehiculos(id),
-  operario_id UUID REFERENCES public.operarios(id),
+  operario_perfil_id UUID REFERENCES public.perfiles(id),
 
   -- Período
   fecha_inicio DATE NOT NULL,
@@ -125,7 +123,7 @@ COMMENT ON COLUMN public.bitacora_cierres.porcentaje_efectividad IS
 -- Índices
 CREATE INDEX idx_cierres_vehiculo_fecha ON public.bitacora_cierres(vehiculo_id, fecha_inicio DESC);
 CREATE INDEX idx_cierres_fecha_inicio ON public.bitacora_cierres(fecha_inicio DESC);
-CREATE INDEX idx_cierres_operario ON public.bitacora_cierres(operario_id);
+CREATE INDEX idx_cierres_operario ON public.bitacora_cierres(operario_perfil_id);
 
 -- ============================================
 -- FUNCIÓN: calcular métricas de cierre

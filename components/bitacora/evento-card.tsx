@@ -98,18 +98,18 @@ export function EventoCard({ evento, onClick }: EventoCardProps) {
           </div>
 
           {/* Operario */}
-          {evento.operarios && (
+          {evento.operario_perfil && (
             <div className="flex items-center gap-2 text-sm">
               <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="truncate">{evento.operarios.nombre}</span>
+              <span className="truncate">{evento.operario_perfil.nombre_completo}</span>
             </div>
           )}
 
           {/* Auxiliar */}
-          {evento.auxiliares && (
+          {evento.auxiliar_perfil && (
             <div className="flex items-center gap-2 text-sm">
               <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="truncate">{evento.auxiliares.nombre}</span>
+              <span className="truncate">{evento.auxiliar_perfil.nombre_completo}</span>
             </div>
           )}
 
