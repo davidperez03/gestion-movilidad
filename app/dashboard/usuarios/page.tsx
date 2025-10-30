@@ -104,7 +104,7 @@ export default async function UsuariosPage() {
                           <Badge variant={usuario.activo ? 'default' : 'outline'}>
                             {usuario.activo ? 'Activo' : 'Inactivo'}
                           </Badge>
-                          {usuario.bloqueado_hasta && new Date(usuario.bloqueado_hasta) > new Date() && (
+                          {usuario.bloqueado_hasta && new Date(usuario.bloqueado_hasta).getTime() > Date.now() && (
                             <Badge variant="destructive" className="text-xs">
                               Bloqueado
                             </Badge>

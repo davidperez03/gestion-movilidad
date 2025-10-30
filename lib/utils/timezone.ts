@@ -54,9 +54,9 @@ export function formatearSoloHoraColombia(fecha: Date | string): string {
  * Obtiene la fecha/hora actual en Colombia
  */
 export function obtenerFechaActualColombia(): Date {
-  return new Date(
-    new Date().toLocaleString('en-US', { timeZone: COLOMBIA_TIMEZONE })
-  )
+  // Simplemente devolver la fecha actual
+  // JavaScript maneja automáticamente la zona horaria del navegador
+  return new Date()
 }
 
 /**

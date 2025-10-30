@@ -75,7 +75,10 @@ export function UsuarioActions({ usuario }: UsuarioActionsProps) {
     }
   }
 
-  const estaBloqueado = usuario.bloqueado_hasta && new Date(usuario.bloqueado_hasta) > new Date()
+  // Verificar si está bloqueado - usar timestamp para evitar problemas de hidratación
+  const estaBloqueado = usuario.bloqueado_hasta
+    ? new Date(usuario.bloqueado_hasta).getTime() > Date.now()
+    : false
 
   return (
     <div className="flex gap-2 items-center justify-end">
