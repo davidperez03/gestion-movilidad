@@ -156,7 +156,7 @@ export async function crearUsuario(datos: {
   }
 
   // Actualizar el perfil con los datos adicionales y el creador
-  const { error: updateError } = await adminClient
+  const { error: updateError } = await supabase
     .from('perfiles')
     .update({
       rol: datos.rol,
