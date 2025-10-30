@@ -16,7 +16,6 @@ export interface Database {
           correo: string
           nombre_completo: string | null
           telefono: string | null
-          cargo: string | null
           rol: 'usuario' | 'inspector' | 'administrador'
           activo: boolean
           url_avatar: string | null

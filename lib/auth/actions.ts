@@ -31,3 +31,53 @@ export async function getUserProfile() {
 
   return profile
 }
+
+// Registrar el último acceso del usuario
+export async function registrarUltimoAcceso(userId: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase.rpc('registrar_ultimo_acceso', {
+    usuario_id: userId
+  })
+
+  if (error) {
+    console.error('Error al registrar último acceso:', error)
+  }
+}
+
+// Incrementar intentos fallidos de login
+export async function incrementarIntentosFallidos(correo: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase.rpc('incrementar_intentos_fallidos', {
+    usuario_correo: correo
+  })
+
+  if (error) {
+    console.error('Error al incrementar intentos fallidos:', error)
+  }
+}
+
+// Verificar si el usuario está bloqueado
+export async function verificarUsuarioBloqueado(correo: string): Promise<{ bloqueado: boolean, hasta?: Date }> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('perfiles')
+    .select('bloqueado_hasta')
+    .eq('correo', correo)
+    .single()
+
+  if (error || !data) {
+    return { bloqueado: false }
+  }
+
+  if (data.bloqueado_hasta) {
+    const fechaBloqueo = new Date(data.bloqueado_hasta)
+    if (fechaBloqueo > new Date()) {
+      return { bloqueado: true, hasta: fechaBloqueo }
+    }
+  }
+
+  return { bloqueado: false }
+}

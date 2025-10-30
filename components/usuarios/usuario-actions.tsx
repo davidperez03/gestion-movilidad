@@ -37,7 +37,6 @@ export function UsuarioActions({ usuario }: UsuarioActionsProps) {
   const [nuevoRol, setNuevoRol] = useState<'usuario' | 'inspector' | 'administrador'>(usuario.rol)
   const [activo, setActivo] = useState(usuario.activo)
   const [telefono, setTelefono] = useState(usuario.telefono || '')
-  const [cargo, setCargo] = useState(usuario.cargo || '')
   const [zonaHoraria, setZonaHoraria] = useState(usuario.zona_horaria || 'America/Bogota')
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,7 +50,6 @@ export function UsuarioActions({ usuario }: UsuarioActionsProps) {
         rol: nuevoRol,
         activo,
         telefono: telefono || null,
-        cargo: cargo || null,
         zona_horaria: zonaHoraria
       })
 
@@ -83,13 +81,14 @@ export function UsuarioActions({ usuario }: UsuarioActionsProps) {
     <div className="flex gap-2 items-center justify-end">
       {estaBloqueado && (
         <Button
-          variant="outline"
+          variant="destructive"
           size="sm"
           onClick={handleDesbloquear}
           disabled={loading}
-          title="Desbloquear usuario"
+          className="gap-2"
         >
           <Unlock className="h-4 w-4" />
+          Desbloquear
         </Button>
       )}
 
@@ -154,18 +153,6 @@ export function UsuarioActions({ usuario }: UsuarioActionsProps) {
                 placeholder="+57 300 123 4567"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cargo">Cargo</Label>
-              <Input
-                id="cargo"
-                type="text"
-                placeholder="Ej: Supervisor, Técnico, etc."
-                value={cargo}
-                onChange={(e) => setCargo(e.target.value)}
                 disabled={loading}
               />
             </div>

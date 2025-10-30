@@ -2,7 +2,10 @@ import { obtenerTodosLosUsuarios } from '@/lib/actions/perfiles'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { UsuarioActions } from '@/components/usuarios/usuario-actions'
+import { CrearUsuarioDialog } from '@/components/usuarios/crear-usuario-dialog'
+import { FechaColombia } from '@/components/ui/fecha-colombia'
 import { Users } from 'lucide-react'
 
 export default async function UsuariosPage() {
@@ -32,11 +35,14 @@ export default async function UsuariosPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h1>
-        <p className="text-muted-foreground">
-          Administra los perfiles y permisos de usuarios del sistema
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h1>
+          <p className="text-muted-foreground">
+            Administra los perfiles y permisos de usuarios del sistema
+          </p>
+        </div>
+        <CrearUsuarioDialog />
       </div>
 
       <Card>
@@ -57,7 +63,6 @@ export default async function UsuariosPage() {
                   <TableHead>Nombre</TableHead>
                   <TableHead>Correo</TableHead>
                   <TableHead>Teléfono</TableHead>
-                  <TableHead>Cargo</TableHead>
                   <TableHead>Rol</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Último Acceso</TableHead>
@@ -67,7 +72,7 @@ export default async function UsuariosPage() {
               <TableBody>
                 {usuarios.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground">
                       No hay usuarios registrados
                     </TableCell>
                   </TableRow>
@@ -75,14 +80,19 @@ export default async function UsuariosPage() {
                   usuarios.map((usuario) => (
                     <TableRow key={usuario.id}>
                       <TableCell className="font-medium">
-                        {usuario.nombre_completo}
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={usuario.url_avatar || undefined} alt={usuario.nombre_completo || ''} />
+                            <AvatarFallback>
+                              {usuario.nombre_completo?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span>{usuario.nombre_completo}</span>
+                        </div>
                       </TableCell>
                       <TableCell>{usuario.correo}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {usuario.telefono || '-'}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {usuario.cargo || '-'}
                       </TableCell>
                       <TableCell>
                         <Badge variant={getRolVariant(usuario.rol)}>
@@ -102,15 +112,11 @@ export default async function UsuariosPage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {usuario.ultimo_acceso
-                          ? new Date(usuario.ultimo_acceso).toLocaleDateString('es-ES', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })
-                          : 'Nunca'}
+                        <FechaColombia
+                          fecha={usuario.ultimo_acceso}
+                          formato="relativo"
+                          placeholder="Nunca"
+                        />
                       </TableCell>
                       <TableCell className="text-right">
                         <UsuarioActions usuario={usuario} />

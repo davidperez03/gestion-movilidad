@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { registrarUltimoAcceso, incrementarIntentosFallidos, verificarUsuarioBloqueado } from '@/lib/auth/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,13 +24,29 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      // Verificar si el usuario está bloqueado
+      const estadoBloqueo = await verificarUsuarioBloqueado(email)
+      if (estadoBloqueo.bloqueado && estadoBloqueo.hasta) {
+        const minutos = Math.ceil((estadoBloqueo.hasta.getTime() - new Date().getTime()) / 1000 / 60)
+        throw new Error(`Usuario bloqueado temporalmente. Intenta nuevamente en ${minutos} minuto(s).`)
+      }
+
       const supabase = createClient()
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (error) throw error
+      if (error) {
+        // Incrementar intentos fallidos
+        await incrementarIntentosFallidos(email)
+        throw error
+      }
+
+      // Registrar último acceso exitoso
+      if (data.user) {
+        await registrarUltimoAcceso(data.user.id)
+      }
 
       // Redirigir al dashboard
       router.push('/dashboard')
