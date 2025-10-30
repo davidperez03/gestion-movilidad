@@ -3,9 +3,7 @@
 -- ============================================
 -- Gestión de recursos de la empresa:
 -- - Vehículos de la flota
--- - Operarios (conductores)
--- - Auxiliares
--- - Inspectores
+-- - Roles operativos (operario, auxiliar, inspector) vinculados a perfiles
 -- ============================================
 
 -- ============================================
@@ -58,131 +56,54 @@ CREATE INDEX idx_vehiculos_tecnomecanica_vencimiento ON public.vehiculos(tecnome
 CREATE INDEX idx_vehiculos_estado_operativo ON public.vehiculos(estado_operativo);
 
 -- ============================================
--- TABLA: operarios
+-- TABLA: roles_operativos
 -- ============================================
+-- Los usuarios del sistema (perfiles) pueden tener roles operativos
+-- Un usuario puede ser operario, auxiliar, inspector o combinaciones
 
-CREATE TABLE IF NOT EXISTS public.operarios (
+CREATE TABLE IF NOT EXISTS public.roles_operativos (
   -- Identificación
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  nombre TEXT NOT NULL,
-  cedula TEXT NOT NULL UNIQUE,
+  perfil_id UUID NOT NULL REFERENCES public.perfiles(id) ON DELETE CASCADE,
 
-  -- Información personal
-  telefono TEXT,
-  direccion TEXT,
-  correo_electronico TEXT,
-  contacto_emergencia TEXT,
-  telefono_emergencia TEXT,
+  -- Tipo de rol operativo
+  rol TEXT NOT NULL CHECK (rol IN ('operario', 'auxiliar', 'inspector')),
 
-  -- Estado laboral
-  activo BOOLEAN NOT NULL DEFAULT true,
-  fecha_ingreso DATE,
-  fecha_retiro DATE,
-  motivo_retiro TEXT,
-
-  -- Información de conductor
-  es_conductor BOOLEAN DEFAULT false,
+  -- Datos específicos para operarios (solo si rol = 'operario')
   licencia_conduccion TEXT,
-  categoria_licencia TEXT,
+  categoria_licencia TEXT CHECK (categoria_licencia IN ('A1', 'A2', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3')),
   licencia_vencimiento DATE,
 
-  -- Salud y seguridad
-  eps TEXT,
-  arl TEXT,
-  tipo_sangre TEXT,
-
-  -- Metadata
-  observaciones TEXT,
-  creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  creado_por UUID REFERENCES public.perfiles(id),
-  actualizado_por UUID REFERENCES public.perfiles(id)
-);
-
-COMMENT ON TABLE public.operarios IS 'Operarios y conductores de vehículos';
-
-CREATE INDEX idx_operarios_activos ON public.operarios(activo) WHERE activo = true;
-CREATE INDEX idx_operarios_cedula ON public.operarios(cedula);
-CREATE INDEX idx_operarios_licencia_vencimiento ON public.operarios(licencia_vencimiento);
-CREATE INDEX idx_operarios_nombre ON public.operarios(nombre);
-
--- ============================================
--- TABLA: auxiliares
--- ============================================
-
-CREATE TABLE IF NOT EXISTS public.auxiliares (
-  -- Identificación
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  nombre TEXT NOT NULL,
-  cedula TEXT NOT NULL UNIQUE,
-
-  -- Información personal
-  telefono TEXT,
-  direccion TEXT,
-  correo_electronico TEXT,
-  contacto_emergencia TEXT,
-  telefono_emergencia TEXT,
-
-  -- Estado laboral
-  activo BOOLEAN NOT NULL DEFAULT true,
-  fecha_ingreso DATE,
-  fecha_retiro DATE,
-  motivo_retiro TEXT,
-
-  -- Salud y seguridad
-  eps TEXT,
-  arl TEXT,
-  tipo_sangre TEXT,
-
-  -- Metadata
-  observaciones TEXT,
-  creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  creado_por UUID REFERENCES public.perfiles(id),
-  actualizado_por UUID REFERENCES public.perfiles(id)
-);
-
-COMMENT ON TABLE public.auxiliares IS 'Personal auxiliar de operaciones';
-
-CREATE INDEX idx_auxiliares_activos ON public.auxiliares(activo) WHERE activo = true;
-CREATE INDEX idx_auxiliares_cedula ON public.auxiliares(cedula);
-CREATE INDEX idx_auxiliares_nombre ON public.auxiliares(nombre);
-
--- ============================================
--- TABLA: inspectores
--- ============================================
-
-CREATE TABLE IF NOT EXISTS public.inspectores (
-  -- Identificación
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  nombre TEXT NOT NULL,
-  documento TEXT NOT NULL UNIQUE,
-
-  -- Información profesional
-  cargo TEXT NOT NULL,
-  certificaciones TEXT[],
-  especialidades TEXT[],
-
-  -- Contacto
-  telefono TEXT,
-  correo_electronico TEXT,
-
   -- Estado
-  activo BOOLEAN NOT NULL DEFAULT true,
+  activo BOOLEAN DEFAULT true,
+  fecha_inicio DATE DEFAULT CURRENT_DATE,
+  fecha_fin DATE,
+  motivo_inactivacion TEXT,
 
   -- Metadata
-  observaciones TEXT,
   creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   creado_por UUID REFERENCES public.perfiles(id),
-  actualizado_por UUID REFERENCES public.perfiles(id)
+  actualizado_por UUID REFERENCES public.perfiles(id),
+
+  -- Un usuario no puede tener el mismo rol duplicado
+  UNIQUE(perfil_id, rol)
 );
 
-COMMENT ON TABLE public.inspectores IS 'Inspectores certificados para realizar inspecciones';
+COMMENT ON TABLE public.roles_operativos IS
+  'Roles operativos asignados a usuarios. Un usuario puede ser operario (conductor), auxiliar (ayudante), inspector o combinaciones.';
 
-CREATE INDEX idx_inspectores_activos ON public.inspectores(activo) WHERE activo = true;
-CREATE INDEX idx_inspectores_documento ON public.inspectores(documento);
-CREATE INDEX idx_inspectores_nombre ON public.inspectores(nombre);
+COMMENT ON COLUMN public.roles_operativos.rol IS
+  'Tipo de rol: operario (conductor con licencia), auxiliar (ayudante sin licencia), inspector (realiza inspecciones)';
+
+COMMENT ON COLUMN public.roles_operativos.licencia_conduccion IS
+  'Número de licencia de conducción (solo para operarios)';
+
+-- Índices
+CREATE INDEX idx_roles_operativos_perfil ON public.roles_operativos(perfil_id);
+CREATE INDEX idx_roles_operativos_rol ON public.roles_operativos(rol);
+CREATE INDEX idx_roles_operativos_activo ON public.roles_operativos(activo) WHERE activo = true;
+CREATE INDEX idx_roles_operativos_licencia_vencimiento ON public.roles_operativos(licencia_vencimiento) WHERE rol = 'operario';
 
 -- ============================================
 -- TRIGGERS: actualizar updated_at
@@ -193,17 +114,7 @@ CREATE TRIGGER trigger_vehiculos_actualizar_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION public.actualizar_updated_at();
 
-CREATE TRIGGER trigger_operarios_actualizar_updated_at
-  BEFORE UPDATE ON public.operarios
-  FOR EACH ROW
-  EXECUTE FUNCTION public.actualizar_updated_at();
-
-CREATE TRIGGER trigger_auxiliares_actualizar_updated_at
-  BEFORE UPDATE ON public.auxiliares
-  FOR EACH ROW
-  EXECUTE FUNCTION public.actualizar_updated_at();
-
-CREATE TRIGGER trigger_inspectores_actualizar_updated_at
-  BEFORE UPDATE ON public.inspectores
+CREATE TRIGGER trigger_roles_operativos_actualizar_updated_at
+  BEFORE UPDATE ON public.roles_operativos
   FOR EACH ROW
   EXECUTE FUNCTION public.actualizar_updated_at();
