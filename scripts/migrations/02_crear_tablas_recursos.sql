@@ -35,7 +35,6 @@ CREATE TABLE IF NOT EXISTS public.vehiculos (
   numero_poliza_soat TEXT,
 
   -- Mantenimiento
-  kilometraje_actual INTEGER,
   ultimo_mantenimiento DATE,
   proximo_mantenimiento DATE,
 

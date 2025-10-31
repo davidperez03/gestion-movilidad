@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.historial_personal (
   -- Referencias
   personal_id UUID NOT NULL,
   tipo_personal TEXT NOT NULL
-    CHECK (tipo_personal IN ('operario', 'auxiliar')),
+    CHECK (tipo_personal IN ('operario', 'auxiliar', 'inspector')),
 
   -- Datos del personal (snapshot)
   nombre TEXT NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS public.historial_personal (
 );
 
 COMMENT ON TABLE public.historial_personal IS
-  'Historial completo de movimientos de operarios y auxiliares';
+  'Historial completo de movimientos de operarios, auxiliares e inspectores';
 
 COMMENT ON COLUMN public.historial_personal.tipo_movimiento IS
   'Tipo de movimiento: ingreso, baja, reingreso, actualizacion, cambio_estado';
@@ -182,8 +182,9 @@ BEGIN
 
   -- Obtener datos del perfil relacionado
   SELECT
+    id,
     nombre_completo,
-    auth_user_id
+    correo
   INTO perfil_data
   FROM public.perfiles
   WHERE id = NEW.perfil_id;
@@ -220,7 +221,7 @@ BEGIN
     NEW.perfil_id,
     NEW.rol, -- operario, auxiliar, inspector
     perfil_data.nombre_completo,
-    COALESCE(perfil_data.auth_user_id::TEXT, 'N/A'), -- usamos auth_user_id como identificador
+    COALESCE(perfil_data.correo, 'N/A'), -- usamos correo como identificador
     tipo_mov,
     CURRENT_DATE,
     CASE

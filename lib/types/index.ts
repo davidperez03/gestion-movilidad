@@ -10,12 +10,14 @@ export type Inspeccion = Database['public']['Tables']['inspecciones']['Row']
 export type ItemInspeccion = Database['public']['Tables']['items_inspeccion']['Row']
 export type FotoInspeccion = Database['public']['Tables']['fotos_inspeccion']['Row']
 export type BitacoraEvento = Database['public']['Tables']['bitacora_eventos']['Row']
+export type BitacoraCierre = Database['public']['Tables']['bitacora_cierres']['Row']
 
 // Tipos para insertar
 export type NuevoVehiculo = Database['public']['Tables']['vehiculos']['Insert']
 export type NuevoRolOperativo = Database['public']['Tables']['roles_operativos']['Insert']
 export type NuevaInspeccion = Database['public']['Tables']['inspecciones']['Insert']
 export type NuevoEvento = Database['public']['Tables']['bitacora_eventos']['Insert']
+export type NuevoCierre = Database['public']['Tables']['bitacora_cierres']['Insert']
 
 // Tipos con relaciones
 export type InspeccionCompleta = Inspeccion & {
@@ -27,11 +29,18 @@ export type InspeccionCompleta = Inspeccion & {
   fotos_inspeccion?: FotoInspeccion[]
 }
 
-// Tipo con relaciones para Bitácora
+// Tipo con relaciones para Bitácora Eventos
 export type BitacoraEventoCompleta = BitacoraEvento & {
   vehiculos?: Vehiculo
   operario_perfil?: Perfil | null
   auxiliar_perfil?: Perfil | null
+}
+
+// Tipo con relaciones para Bitácora Cierres
+export type BitacoraCierreCompleto = BitacoraCierre & {
+  vehiculos?: Vehiculo
+  operario_perfil?: Perfil | null
+  eventos?: BitacoraEvento[]
 }
 
 // Tipo extendido para Rol Operativo con datos del perfil
@@ -68,6 +77,7 @@ export const TURNOS = {
   DIURNO: 'diurno',
   NOCTURNO: 'nocturno',
   COMPLETO: 'completo',
+  MIXTO: 'mixto', // Para cierres que abarcan múltiples turnos
 } as const
 
 export const ESTADOS_INSPECCION = {
@@ -102,4 +112,5 @@ export const PRIORIDADES = {
 
 // Tipos de formularios para componentes
 export type FormularioBitacoraEvento = Omit<NuevoEvento, 'creado_por' | 'creado_en' | 'actualizado_en'>
+export type FormularioBitacoraCierre = Omit<NuevoCierre, 'cerrado_por' | 'cerrado_en' | 'creado_en' | 'actualizado_en'>
 export type FormularioInspeccion = Omit<NuevaInspeccion, 'creado_por' | 'creado_en' | 'actualizado_en'>

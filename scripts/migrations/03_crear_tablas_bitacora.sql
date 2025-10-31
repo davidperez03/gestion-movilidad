@@ -32,18 +32,10 @@ CREATE TABLE IF NOT EXISTS public.bitacora_eventos (
 
   -- Métricas
   horas_operacion NUMERIC(5,2),
-  kilometraje_inicio INTEGER,
-  kilometraje_fin INTEGER,
-  combustible_inicial NUMERIC(5,2),
-  combustible_final NUMERIC(5,2),
 
   -- Estado
   estado TEXT NOT NULL DEFAULT 'activo'
     CHECK (estado IN ('activo', 'cerrado', 'cancelado')),
-
-  -- Ubicación
-  ubicacion_inicio TEXT,
-  ubicacion_fin TEXT,
 
   -- Metadata
   observaciones TEXT,
@@ -92,13 +84,6 @@ CREATE TABLE IF NOT EXISTS public.bitacora_cierres (
   horas_efectivas NUMERIC(5,2) NOT NULL DEFAULT 0,
   porcentaje_efectividad NUMERIC(5,2),
 
-  -- Kilometraje y combustible
-  kilometraje_inicio INTEGER,
-  kilometraje_fin INTEGER,
-  kilometros_recorridos INTEGER,
-  combustible_consumido NUMERIC(6,2),
-  rendimiento_combustible NUMERIC(5,2),
-
   -- Eventos relacionados
   eventos_ids UUID[] NOT NULL DEFAULT '{}',
   cantidad_eventos INTEGER DEFAULT 0,
@@ -132,17 +117,6 @@ CREATE INDEX idx_cierres_operario ON public.bitacora_cierres(operario_perfil_id)
 CREATE OR REPLACE FUNCTION public.calcular_metricas_cierre()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- Calcular kilómetros recorridos
-  IF NEW.kilometraje_inicio IS NOT NULL AND NEW.kilometraje_fin IS NOT NULL THEN
-    NEW.kilometros_recorridos = NEW.kilometraje_fin - NEW.kilometraje_inicio;
-  END IF;
-
-  -- Calcular rendimiento de combustible
-  IF NEW.combustible_consumido IS NOT NULL AND NEW.combustible_consumido > 0
-     AND NEW.kilometros_recorridos IS NOT NULL THEN
-    NEW.rendimiento_combustible = NEW.kilometros_recorridos / NEW.combustible_consumido;
-  END IF;
-
   -- Calcular porcentaje de efectividad
   IF NEW.horas_operacion > 0 THEN
     NEW.porcentaje_efectividad = (NEW.horas_efectivas / NEW.horas_operacion) * 100;

@@ -52,9 +52,6 @@ export function FormularioEvento({
     tipo_evento: 'operacion' as const,
     descripcion: '',
     turno: null as string | null,
-    kilometraje_inicio: null as number | null,
-    combustible_inicial: null as number | null,
-    ubicacion_inicio: '',
     observaciones: '',
   })
 
@@ -84,16 +81,10 @@ export function FormularioEvento({
         tipo_evento: formData.tipo_evento,
         descripcion: formData.descripcion,
         turno: formData.turno as any,
-        kilometraje_inicio: formData.kilometraje_inicio,
-        combustible_inicial: formData.combustible_inicial,
-        ubicacion_inicio: formData.ubicacion_inicio || null,
         observaciones: formData.observaciones || null,
         estado: 'activo',
         hora_fin: null,
         horas_operacion: null,
-        kilometraje_fin: null,
-        combustible_final: null,
-        ubicacion_fin: null,
         adjuntos: null,
       })
 
@@ -106,19 +97,6 @@ export function FormularioEvento({
     }
   }
 
-  // Autocompletar kilometraje del vehículo seleccionado
-  const handleVehiculoChange = (vehiculoId: string) => {
-    setFormData({ ...formData, vehiculo_id: vehiculoId })
-
-    const vehiculo = vehiculos.find((v) => v.id === vehiculoId)
-    if (vehiculo?.kilometraje_actual) {
-      setFormData((prev) => ({
-        ...prev,
-        vehiculo_id: vehiculoId,
-        kilometraje_inicio: vehiculo.kilometraje_actual,
-      }))
-    }
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -135,7 +113,7 @@ export function FormularioEvento({
         </Label>
         <Select
           value={formData.vehiculo_id}
-          onValueChange={handleVehiculoChange}
+          onValueChange={(value) => setFormData({ ...formData, vehiculo_id: value })}
           required
         >
           <SelectTrigger id="vehiculo">
@@ -226,14 +204,13 @@ export function FormularioEvento({
       <div className="space-y-2">
         <Label htmlFor="operario">Operario</Label>
         <Select
-          value={formData.operario_perfil_id}
+          value={formData.operario_perfil_id || undefined}
           onValueChange={(value) => setFormData({ ...formData, operario_perfil_id: value })}
         >
           <SelectTrigger id="operario">
             <SelectValue placeholder="Selecciona un operario (opcional)" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Sin operario</SelectItem>
             {operarios.map((operario) => (
               <SelectItem key={operario.id} value={operario.id}>
                 {operario.nombre}
@@ -247,14 +224,13 @@ export function FormularioEvento({
       <div className="space-y-2">
         <Label htmlFor="auxiliar">Auxiliar</Label>
         <Select
-          value={formData.auxiliar_perfil_id}
+          value={formData.auxiliar_perfil_id || undefined}
           onValueChange={(value) => setFormData({ ...formData, auxiliar_perfil_id: value })}
         >
           <SelectTrigger id="auxiliar">
             <SelectValue placeholder="Selecciona un auxiliar (opcional)" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Sin auxiliar</SelectItem>
             {auxiliares.map((auxiliar) => (
               <SelectItem key={auxiliar.id} value={auxiliar.id}>
                 {auxiliar.nombre}
@@ -268,7 +244,7 @@ export function FormularioEvento({
       <div className="space-y-2">
         <Label htmlFor="turno">Turno</Label>
         <Select
-          value={formData.turno || ''}
+          value={formData.turno || undefined}
           onValueChange={(value) =>
             setFormData({ ...formData, turno: value || null })
           }
@@ -277,62 +253,11 @@ export function FormularioEvento({
             <SelectValue placeholder="Selecciona turno (opcional)" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Sin turno</SelectItem>
             <SelectItem value={TURNOS.DIURNO}>Diurno</SelectItem>
             <SelectItem value={TURNOS.NOCTURNO}>Nocturno</SelectItem>
             <SelectItem value={TURNOS.COMPLETO}>Completo</SelectItem>
           </SelectContent>
         </Select>
-      </div>
-
-      {/* Métricas */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="kilometraje">Kilometraje Inicial</Label>
-          <Input
-            id="kilometraje"
-            type="number"
-            min="0"
-            placeholder="Km"
-            value={formData.kilometraje_inicio || ''}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                kilometraje_inicio: e.target.value ? Number(e.target.value) : null,
-              })
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="combustible">Combustible Inicial</Label>
-          <Input
-            id="combustible"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="Litros"
-            value={formData.combustible_inicial || ''}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                combustible_inicial: e.target.value ? Number(e.target.value) : null,
-              })
-            }
-          />
-        </div>
-      </div>
-
-      {/* Ubicación */}
-      <div className="space-y-2">
-        <Label htmlFor="ubicacion">Ubicación Inicial</Label>
-        <Input
-          id="ubicacion"
-          placeholder="Ej: Yopal, Calle 10 #5-23"
-          value={formData.ubicacion_inicio}
-          onChange={(e) =>
-            setFormData({ ...formData, ubicacion_inicio: e.target.value })
-          }
-        />
       </div>
 
       {/* Observaciones */}

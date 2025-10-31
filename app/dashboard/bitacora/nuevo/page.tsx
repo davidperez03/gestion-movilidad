@@ -12,34 +12,38 @@ export default async function NuevoEventoPage() {
   const [vehiculosRes, operariosRes, auxiliaresRes] = await Promise.all([
     supabase
       .from('vehiculos')
-      .select('id, placa, marca, modelo, tipo, kilometraje_actual')
+      .select('id, placa, marca, modelo, tipo')
       .eq('activo', true)
       .eq('estado_operativo', 'operativo')
       .order('placa'),
     supabase
       .from('roles_operativos')
       .select(`
+        id,
         perfil_id,
-        perfiles (
+        perfiles!roles_operativos_perfil_id_fkey (
           id,
           nombre_completo,
           correo
         )
       `)
       .eq('rol', 'operario')
-      .eq('activo', true),
+      .eq('activo', true)
+      .order('perfiles(nombre_completo)'),
     supabase
       .from('roles_operativos')
       .select(`
+        id,
         perfil_id,
-        perfiles (
+        perfiles!roles_operativos_perfil_id_fkey (
           id,
           nombre_completo,
           correo
         )
       `)
       .eq('rol', 'auxiliar')
-      .eq('activo', true),
+      .eq('activo', true)
+      .order('perfiles(nombre_completo)'),
   ])
 
   return (
@@ -70,16 +74,20 @@ export default async function NuevoEventoPage() {
         <CardContent>
           <FormularioEvento
             vehiculos={vehiculosRes.data || []}
-            operarios={(operariosRes.data || []).map((r: any) => ({
-              id: r.perfiles?.id || r.perfil_id,
-              nombre: r.perfiles?.nombre_completo || '',
-              correo: r.perfiles?.correo || '',
-            }))}
-            auxiliares={(auxiliaresRes.data || []).map((r: any) => ({
-              id: r.perfiles?.id || r.perfil_id,
-              nombre: r.perfiles?.nombre_completo || '',
-              correo: r.perfiles?.correo || '',
-            }))}
+            operarios={(operariosRes.data || [])
+              .filter((r: any) => r.perfiles) // Solo incluir los que tienen perfil
+              .map((r: any) => ({
+                id: r.perfil_id,
+                nombre: r.perfiles.nombre_completo,
+                correo: r.perfiles.correo,
+              }))}
+            auxiliares={(auxiliaresRes.data || [])
+              .filter((r: any) => r.perfiles) // Solo incluir los que tienen perfil
+              .map((r: any) => ({
+                id: r.perfil_id,
+                nombre: r.perfiles.nombre_completo,
+                correo: r.perfiles.correo,
+              }))}
           />
         </CardContent>
       </Card>
