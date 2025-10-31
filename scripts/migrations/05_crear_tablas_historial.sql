@@ -173,11 +173,20 @@ RETURNS TRIGGER AS $$
 DECLARE
   tipo_mov TEXT;
   usuario_actual UUID;
+  perfil_data RECORD;
 BEGIN
   usuario_actual := COALESCE(
     current_setting('app.current_user_id', true)::uuid,
     auth.uid()
   );
+
+  -- Obtener datos del perfil relacionado
+  SELECT
+    nombre_completo,
+    auth_user_id
+  INTO perfil_data
+  FROM public.perfiles
+  WHERE id = NEW.perfil_id;
 
   -- Determinar tipo de movimiento
   IF (TG_OP = 'INSERT') THEN
@@ -208,18 +217,18 @@ BEGIN
     licencia_vencimiento,
     creado_por
   ) VALUES (
-    NEW.id,
-    TG_TABLE_NAME,
-    NEW.nombre,
-    NEW.cedula,
+    NEW.perfil_id,
+    NEW.rol, -- operario, auxiliar, inspector
+    perfil_data.nombre_completo,
+    COALESCE(perfil_data.auth_user_id::TEXT, 'N/A'), -- usamos auth_user_id como identificador
     tipo_mov,
     CURRENT_DATE,
     CASE
-      WHEN NEW.activo = false THEN NEW.motivo_retiro
+      WHEN NEW.activo = false THEN NEW.motivo_inactivacion
       ELSE NULL
     END,
     NEW.activo,
-    COALESCE(NEW.es_conductor, false),
+    CASE WHEN NEW.rol = 'operario' THEN true ELSE false END, -- solo operarios son conductores
     NEW.licencia_conduccion,
     NEW.categoria_licencia,
     NEW.licencia_vencimiento,
@@ -246,21 +255,9 @@ CREATE TRIGGER trigger_auditoria_vehiculos
   FOR EACH ROW
   EXECUTE FUNCTION public.registrar_auditoria();
 
--- Auditoría en operarios
-CREATE TRIGGER trigger_auditoria_operarios
-  AFTER INSERT OR UPDATE OR DELETE ON public.operarios
-  FOR EACH ROW
-  EXECUTE FUNCTION public.registrar_auditoria();
-
--- Auditoría en auxiliares
-CREATE TRIGGER trigger_auditoria_auxiliares
-  AFTER INSERT OR UPDATE OR DELETE ON public.auxiliares
-  FOR EACH ROW
-  EXECUTE FUNCTION public.registrar_auditoria();
-
--- Auditoría en inspectores
-CREATE TRIGGER trigger_auditoria_inspectores
-  AFTER INSERT OR UPDATE OR DELETE ON public.inspectores
+-- Auditoría en roles operativos
+CREATE TRIGGER trigger_auditoria_roles_operativos
+  AFTER INSERT OR UPDATE OR DELETE ON public.roles_operativos
   FOR EACH ROW
   EXECUTE FUNCTION public.registrar_auditoria();
 
@@ -285,15 +282,11 @@ CREATE TRIGGER trigger_auditoria_cierres
 -- ============================================
 -- TRIGGERS DE HISTORIAL DE PERSONAL
 -- ============================================
+-- NOTA: Los triggers de historial de personal se crean en roles_operativos
+-- cuando se modifica el estado activo de un rol operativo
 
--- Historial de operarios
-CREATE TRIGGER trigger_historial_operarios
-  AFTER INSERT OR UPDATE ON public.operarios
-  FOR EACH ROW
-  EXECUTE FUNCTION public.registrar_movimiento_personal();
-
--- Historial de auxiliares
-CREATE TRIGGER trigger_historial_auxiliares
-  AFTER INSERT OR UPDATE ON public.auxiliares
+-- Historial de roles operativos
+CREATE TRIGGER trigger_historial_roles_operativos
+  AFTER INSERT OR UPDATE ON public.roles_operativos
   FOR EACH ROW
   EXECUTE FUNCTION public.registrar_movimiento_personal();
