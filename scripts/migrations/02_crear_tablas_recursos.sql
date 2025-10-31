@@ -18,10 +18,7 @@ CREATE TABLE IF NOT EXISTS public.vehiculos (
   -- Información del vehículo
   marca TEXT,
   modelo TEXT,
-  tipo TEXT DEFAULT 'GRÚA PLATAFORMA',
-  año INTEGER,
-  color TEXT,
-  vin TEXT,
+  tipo TEXT DEFAULT 'GRÚA DE PLATAFORMA' CHECK (tipo = 'GRÚA DE PLATAFORMA'),
 
   -- Estado
   activo BOOLEAN NOT NULL DEFAULT true,
@@ -33,10 +30,6 @@ CREATE TABLE IF NOT EXISTS public.vehiculos (
   tecnomecanica_vencimiento DATE,
   soat_aseguradora TEXT,
   numero_poliza_soat TEXT,
-
-  -- Mantenimiento
-  ultimo_mantenimiento DATE,
-  proximo_mantenimiento DATE,
 
   -- Metadata
   observaciones TEXT,
