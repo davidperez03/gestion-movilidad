@@ -36,7 +36,6 @@ export function EditarVehiculoDialog({ vehiculo, children }: EditarVehiculoDialo
     placa: vehiculo.placa,
     marca: vehiculo.marca || '',
     modelo: vehiculo.modelo || '',
-    estado_operativo: vehiculo.estado_operativo,
     activo: vehiculo.activo,
     soat_vencimiento: vehiculo.soat_vencimiento || '',
     tecnomecanica_vencimiento: vehiculo.tecnomecanica_vencimiento || '',
@@ -59,9 +58,6 @@ export function EditarVehiculoDialog({ vehiculo, children }: EditarVehiculoDialo
         placa: formData.placa !== vehiculo.placa ? formData.placa : undefined,
         marca: formData.marca || undefined,
         modelo: formData.modelo || undefined,
-        estado_operativo: formData.estado_operativo !== vehiculo.estado_operativo
-          ? (formData.estado_operativo as 'operativo' | 'mantenimiento' | 'reparacion' | 'inactivo')
-          : undefined,
         activo: formData.activo !== vehiculo.activo ? formData.activo : undefined,
         soat_vencimiento: formData.soat_vencimiento || undefined,
         tecnomecanica_vencimiento: formData.tecnomecanica_vencimiento || undefined,
@@ -166,41 +162,19 @@ export function EditarVehiculoDialog({ vehiculo, children }: EditarVehiculoDialo
               <Power className="h-5 w-5" />
               ESTADO DEL VEHÍCULO
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="estado_operativo" className="text-sm font-bold uppercase">
-                  ESTADO OPERATIVO
-                </Label>
-                <Select
-                  value={formData.estado_operativo}
-                  onValueChange={(value) => setFormData({ ...formData, estado_operativo: value })}
-                >
-                  <SelectTrigger id="estado_operativo" className="uppercase">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="operativo">OPERATIVO</SelectItem>
-                    <SelectItem value="mantenimiento">MANTENIMIENTO</SelectItem>
-                    <SelectItem value="reparacion">REPARACIÓN</SelectItem>
-                    <SelectItem value="inactivo">INACTIVO</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="activo" className="text-sm font-bold uppercase">
-                  ACTIVO
-                </Label>
-                <div className="flex items-center space-x-3 h-10 px-3 border-2 rounded-lg bg-white dark:bg-slate-950">
-                  <Switch
-                    id="activo"
-                    checked={formData.activo}
-                    onCheckedChange={(checked) => setFormData({ ...formData, activo: checked })}
-                  />
-                  <span className="text-sm font-semibold uppercase">
-                    {formData.activo ? 'SÍ' : 'NO'}
-                  </span>
-                </div>
+            <div className="space-y-2">
+              <Label htmlFor="activo" className="text-sm font-bold uppercase">
+                ACTIVO
+              </Label>
+              <div className="flex items-center space-x-3 h-10 px-3 border-2 rounded-lg bg-white dark:bg-slate-950">
+                <Switch
+                  id="activo"
+                  checked={formData.activo}
+                  onCheckedChange={(checked) => setFormData({ ...formData, activo: checked })}
+                />
+                <span className="text-sm font-semibold uppercase">
+                  {formData.activo ? 'SÍ' : 'NO'}
+                </span>
               </div>
             </div>
           </div>

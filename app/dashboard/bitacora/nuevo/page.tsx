@@ -14,7 +14,6 @@ export default async function NuevoEventoPage() {
       .from('vehiculos')
       .select('id, placa, marca, modelo, tipo')
       .eq('activo', true)
-      .eq('estado_operativo', 'operativo')
       .order('placa'),
     supabase
       .from('roles_operativos')

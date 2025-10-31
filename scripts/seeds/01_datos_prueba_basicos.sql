@@ -9,29 +9,29 @@
 -- ============================================
 
 INSERT INTO public.vehiculos (
-  placa, marca, modelo, tipo, año, color, activo,
+  placa, marca, modelo, tipo, activo,
   soat_vencimiento, tecnomecanica_vencimiento,
-  soat_aseguradora, estado_operativo
+  soat_aseguradora
 ) VALUES
-  ('ABC123', 'Chevrolet', 'NPR', 'GRÚA PLATAFORMA', 2020, 'Blanco', true,
+  ('ABC123', 'Chevrolet', 'NPR', 'GRÚA DE PLATAFORMA', true,
    CURRENT_DATE + INTERVAL '6 months', CURRENT_DATE + INTERVAL '8 months',
-   'Seguros Bolívar', 'operativo'),
+   'Seguros Bolívar'),
 
-  ('DEF456', 'Hino', '816', 'GRÚA PLATAFORMA', 2021, 'Amarillo', true,
+  ('DEF456', 'Hino', '816', 'GRÚA DE PLATAFORMA', true,
    CURRENT_DATE + INTERVAL '4 months', CURRENT_DATE + INTERVAL '5 months',
-   'SURA', 'operativo'),
+   'SURA'),
 
-  ('GHI789', 'Chevrolet', 'FRR', 'GRÚA PLATAFORMA', 2019, 'Rojo', true,
+  ('GHI789', 'Chevrolet', 'FRR', 'GRÚA DE PLATAFORMA', true,
    CURRENT_DATE + INTERVAL '2 months', CURRENT_DATE + INTERVAL '3 months',
-   'Allianz', 'operativo'),
+   'Allianz'),
 
-  ('JKL012', 'Isuzu', 'NQR', 'GRÚA PLATAFORMA', 2022, 'Azul', true,
+  ('JKL012', 'Isuzu', 'NQR', 'GRÚA DE PLATAFORMA', true,
    CURRENT_DATE + INTERVAL '10 months', CURRENT_DATE + INTERVAL '11 months',
-   'Liberty Seguros', 'operativo'),
+   'Liberty Seguros'),
 
-  ('MNO345', 'Hino', '500', 'GRÚA PLATAFORMA', 2018, 'Blanco', true,
+  ('MNO345', 'Hino', '500', 'GRÚA DE PLATAFORMA', true,
    CURRENT_DATE - INTERVAL '1 month', CURRENT_DATE + INTERVAL '1 month',
-   'Seguros Bolívar', 'mantenimiento')
+   'Seguros Bolívar')
 ON CONFLICT (placa) DO NOTHING;
 
 -- ============================================

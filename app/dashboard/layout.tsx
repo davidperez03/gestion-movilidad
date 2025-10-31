@@ -1,117 +1,164 @@
+'use client'
+
 import Link from 'next/link'
-import {
-  LayoutDashboard,
-  Car,
-  Users,
-  ClipboardCheck,
-  BookOpen,
-  Settings,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { LogoutButton } from '@/components/logout-button'
-import { getUserProfile } from '@/lib/auth/actions'
+import { usePathname } from 'next/navigation'
+import { LayoutDashboard, Truck, Users, BookOpen, Menu, X, LogOut } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 const menuItems = [
-  {
-    title: 'Panel Principal',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-  },
-  {
-    title: 'Usuarios',
-    href: '/dashboard/usuarios',
-    icon: Users,
-  },
-  {
-    title: 'Vehículos',
-    href: '/dashboard/vehiculos',
-    icon: Car,
-  },
-  {
-    title: 'Personal',
-    href: '/dashboard/operarios',
-    icon: Users,
-  },
-  {
-    title: 'Inspecciones',
-    href: '/dashboard/inspecciones',
-    icon: ClipboardCheck,
-  },
-  {
-    title: 'Bitácora',
-    href: '/dashboard/bitacora',
-    icon: BookOpen,
-  },
+  { title: 'Inicio', href: '/dashboard', icon: LayoutDashboard },
+  { title: 'Usuarios', href: '/dashboard/usuarios', icon: Users },
+  { title: 'Vehículos', href: '/dashboard/vehiculos', icon: Truck },
+  { title: 'Bitácora', href: '/dashboard/bitacora', icon: BookOpen },
 ]
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const profile = await getUserProfile()
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    const getUser = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase.from('perfiles').select('*').eq('id', user.id).single()
+        setUser(profile)
+      }
+    }
+    getUser()
+  }, [])
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        {/* Logo */}
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-900">
-            Sistema de Inspecciones
-          </h1>
-        </div>
+    <div className="min-h-screen">
+      {/* Mobile Header */}
+      <header className="lg:hidden sticky top-0 z-50 bg-card border-b h-12 flex items-center px-4">
+        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-1 -ml-1">
+          {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+        <span className="ml-3 font-semibold text-sm">Inspecciones</span>
+      </header>
 
-        {/* Navegación */}
-        <nav className="flex-1 p-4 space-y-1">
+      {/* Mobile Sidebar */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="lg:hidden fixed inset-0 z-40 bg-black/20"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="absolute inset-y-0 left-0 w-64 bg-card border-r flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-4 border-b">
+                <h1 className="font-semibold">Inspecciones</h1>
+                {user && <p className="text-xs text-muted-foreground mt-1">{user.nombre_completo}</p>}
+              </div>
+              <nav className="flex-1 p-3 space-y-1">
+                {menuItems.map((item) => {
+                  const Icon = item.icon
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                        isActive ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  )
+                })}
+              </nav>
+              <div className="p-3 border-t">
+                <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 w-full transition-colors">
+                  <LogOut className="h-4 w-4" />
+                  <span>Salir</span>
+                </button>
+              </div>
+            </motion.aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:block fixed inset-y-0 left-0 w-60 bg-card border-r flex-col">
+        <div className="p-4 border-b">
+          <h1 className="font-semibold">Inspecciones</h1>
+          {user && <p className="text-xs text-muted-foreground mt-1">{user.nombre_completo}</p>}
+        </div>
+        <nav className="flex-1 p-3 space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon
+            const isActive = pathname === item.href
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                  isActive ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                }`}
               >
-                <Icon className="h-5 w-5" />
-                <span className="font-medium">{item.title}</span>
+                <Icon className="h-4 w-4" />
+                <span>{item.title}</span>
               </Link>
             )
           })}
         </nav>
-
-        {/* Footer del sidebar */}
-        <div className="p-4 border-t border-gray-200">
-          {/* Información del usuario */}
-          {profile && (
-            <div className="mb-4 px-2">
-              <p className="text-sm font-medium text-gray-900">
-                {profile.nombre_completo || 'Usuario'}
-              </p>
-              <p className="text-xs text-gray-500">{profile.correo}</p>
-              <span className="inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
-                {profile.rol}
-              </span>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link href="/dashboard/configuracion">
-                <Settings className="h-5 w-5 mr-3" />
-                Configuración
-              </Link>
-            </Button>
-            <LogoutButton />
-          </div>
+        <div className="p-3 border-t">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 w-full transition-colors">
+            <LogOut className="h-4 w-4" />
+            <span>Salir</span>
+          </button>
         </div>
       </aside>
 
-      {/* Contenido principal */}
-      <main className="flex-1 overflow-auto">
-        <div className="p-8">
+      {/* Main Content */}
+      <main className="lg:ml-60">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
           {children}
-        </div>
+        </motion.div>
       </main>
+
+      {/* Bottom Nav Mobile */}
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 bg-card border-t h-14 flex items-center justify-around z-40">
+        {menuItems.map((item) => {
+          const Icon = item.icon
+          const isActive = pathname === item.href
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1 transition-colors ${
+                isActive ? 'text-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              <Icon className="h-5 w-5" />
+              <span className="text-[10px]">{item.title}</span>
+            </Link>
+          )
+        })}
+      </nav>
     </div>
   )
 }

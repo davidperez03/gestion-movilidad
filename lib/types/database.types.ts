@@ -39,18 +39,11 @@ export interface Database {
           marca: string | null
           modelo: string | null
           tipo: string
-          año: number | null
-          color: string | null
-          vin: string | null
           activo: boolean
-          estado_operativo: 'operativo' | 'mantenimiento' | 'reparacion' | 'inactivo'
           soat_vencimiento: string | null
           tecnomecanica_vencimiento: string | null
           soat_aseguradora: string | null
           numero_poliza_soat: string | null
-          kilometraje_actual: number | null
-          ultimo_mantenimiento: string | null
-          proximo_mantenimiento: string | null
           observaciones: string | null
           creado_en: string
           actualizado_en: string

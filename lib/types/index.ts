@@ -50,7 +50,6 @@ export type RolOperativoConPerfil = RolOperativo & {
 
 // Enums y tipos de estado
 export type RolUsuario = Perfil['rol']
-export type EstadoVehiculo = Vehiculo['estado_operativo']
 export type EstadoInspeccion = Inspeccion['estado']
 export type CategoriaItem = ItemInspeccion['categoria']
 export type EstadoItem = ItemInspeccion['estado']

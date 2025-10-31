@@ -22,8 +22,6 @@ CREATE TABLE IF NOT EXISTS public.vehiculos (
 
   -- Estado
   activo BOOLEAN NOT NULL DEFAULT true,
-  estado_operativo TEXT DEFAULT 'operativo'
-    CHECK (estado_operativo IN ('operativo', 'mantenimiento', 'reparacion', 'inactivo')),
 
   -- Documentación
   soat_vencimiento DATE,
@@ -45,7 +43,6 @@ CREATE INDEX idx_vehiculos_activos ON public.vehiculos(activo) WHERE activo = tr
 CREATE INDEX idx_vehiculos_placa ON public.vehiculos(placa);
 CREATE INDEX idx_vehiculos_soat_vencimiento ON public.vehiculos(soat_vencimiento);
 CREATE INDEX idx_vehiculos_tecnomecanica_vencimiento ON public.vehiculos(tecnomecanica_vencimiento);
-CREATE INDEX idx_vehiculos_estado_operativo ON public.vehiculos(estado_operativo);
 
 -- ============================================
 -- TABLA: roles_operativos

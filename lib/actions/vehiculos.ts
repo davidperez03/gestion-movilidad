@@ -11,7 +11,6 @@ export async function obtenerVehiculos(params?: {
   pagina?: number
   limite?: number
   activo?: boolean
-  estadoOperativo?: string
   busqueda?: string
 }) {
   const supabase = await createClient()
@@ -20,7 +19,6 @@ export async function obtenerVehiculos(params?: {
     pagina = 1,
     limite = 20,
     activo,
-    estadoOperativo,
     busqueda,
   } = params || {}
 
@@ -31,7 +29,6 @@ export async function obtenerVehiculos(params?: {
 
   // Filtros
   if (activo !== undefined) query = query.eq('activo', activo)
-  if (estadoOperativo) query = query.eq('estado_operativo', estadoOperativo)
   if (busqueda) {
     query = query.or(`placa.ilike.%${busqueda}%,marca.ilike.%${busqueda}%,modelo.ilike.%${busqueda}%`)
   }
@@ -131,7 +128,6 @@ export async function crearVehiculo(datos: {
       numero_poliza_soat: datos.numero_poliza_soat || null,
       observaciones: datos.observaciones || null,
       activo: true,
-      estado_operativo: 'operativo',
       creado_por: user.id,
       actualizado_por: user.id,
     })
@@ -156,7 +152,6 @@ export async function actualizarVehiculo(
     marca?: string
     modelo?: string
     tipo?: string
-    estado_operativo?: 'operativo' | 'mantenimiento' | 'reparacion' | 'inactivo'
     activo?: boolean
     soat_vencimiento?: string
     tecnomecanica_vencimiento?: string
@@ -275,7 +270,6 @@ export async function obtenerVehiculosDisponibles() {
     .from('vehiculos')
     .select('id, placa, marca, modelo, tipo')
     .eq('activo', true)
-    .eq('estado_operativo', 'operativo')
     .order('placa')
 
   if (error) {
