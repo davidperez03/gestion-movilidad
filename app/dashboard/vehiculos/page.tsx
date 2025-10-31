@@ -8,14 +8,15 @@ import { Plus, Search, Truck } from 'lucide-react'
 export default async function VehiculosPage({
   searchParams,
 }: {
-  searchParams: { busqueda?: string }
+  searchParams: Promise<{ busqueda?: string }>
 }) {
+  const { busqueda } = await searchParams
   const supabase = await createClient()
 
   let query = supabase.from('vehiculos').select('*', { count: 'exact' }).order('placa', { ascending: true })
 
-  if (searchParams.busqueda) {
-    query = query.or(`placa.ilike.%${searchParams.busqueda}%,marca.ilike.%${searchParams.busqueda}%,modelo.ilike.%${searchParams.busqueda}%`)
+  if (busqueda) {
+    query = query.or(`placa.ilike.%${busqueda}%,marca.ilike.%${busqueda}%,modelo.ilike.%${busqueda}%`)
   }
 
   const { data: vehiculos, count } = await query
@@ -50,7 +51,7 @@ export default async function VehiculosPage({
               <Input
                 name="busqueda"
                 placeholder="Buscar por placa, marca o modelo..."
-                defaultValue={searchParams.busqueda}
+                defaultValue={busqueda}
                 className="pl-10 h-11 bg-card border-border shadow-sm"
               />
             </div>
@@ -109,10 +110,10 @@ export default async function VehiculosPage({
               <Truck className="h-10 w-10 text-muted-foreground" />
             </div>
             <p className="text-base font-medium text-foreground">
-              {searchParams.busqueda ? 'No se encontraron vehículos' : 'No hay vehículos registrados'}
+              {busqueda ? 'No se encontraron vehículos' : 'No hay vehículos registrados'}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              {searchParams.busqueda ? 'Intenta con otra búsqueda' : 'Comienza agregando tu primer vehículo'}
+              {busqueda ? 'Intenta con otra búsqueda' : 'Comienza agregando tu primer vehículo'}
             </p>
           </div>
         )}
