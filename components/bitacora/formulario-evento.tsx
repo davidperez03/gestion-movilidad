@@ -24,7 +24,7 @@ interface PersonaBasica {
 }
 
 interface FormularioEventoProps {
-  vehiculos: Array<Pick<Vehiculo, 'id' | 'placa' | 'marca' | 'modelo' | 'tipo' | 'kilometraje_actual'>>
+  vehiculos: Array<Pick<Vehiculo, 'id' | 'placa' | 'marca' | 'modelo' | 'tipo'>>
   operarios: PersonaBasica[]
   auxiliares: PersonaBasica[]
 }
